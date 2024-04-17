@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <vector>
-#include <iostream>
+#include <cstdio>
+// #include <iostream>
 class bisection_search
 {
 public:
@@ -29,3 +30,5 @@ int main(){
     std::vector<int> data_ = {1, 2, 3, 56, 65, 66, 88, 99, 123, 454};
     printf("location in data is %d\n", finder.search(data_, 36));
 }
+
+//前提是个有序数组

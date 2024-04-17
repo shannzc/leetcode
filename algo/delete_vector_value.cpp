@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <vector>
+#include <cstdio>
 #include <iostream>
 
 class delete_vector_value
@@ -22,8 +23,9 @@ public:
 
 int main(){
     delete_vector_value demo;
-    std::vector<int> data__{1,2,4,5,2,2,4,3,5,2,3,2,2,2};
+    std::vector<int> data__{10,92,4,5,2,2,4,3,5,2,3,2,2,2};
     auto lenth = demo.removeElement(data__, 2);
     printf("after remove lenth is %d\n", lenth);
     // std::cout << data__ << std::endl;
 }
+// first 就是个探路的，无目标值时就同步往前走，有目标值则slow不动，first往前走
