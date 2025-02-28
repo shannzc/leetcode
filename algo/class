@@ -124,3 +124,114 @@ void someFunction() {
 
 
 ----------------------------------------------------------------------------------------------------
+#智能指针
+在C++中，智能指针用于自动管理动态内存，避免内存泄漏和悬空指针等问题。常见的三种智能指针包括：
+
+std::unique_ptr:
+
+特点: 独占所有权，同一时间只能有一个unique_ptr指向某个对象。
+用途: 适用于需要明确独占资源所有权的场景。
+std::unique_ptr<int> ptr(new int(10));
+// ptr 独占所有权，不能复制，只能移动
+std::unique_ptr<int> ptr2 = std::move(ptr);
+
+
+
+std::shared_ptr:
+特点: 共享所有权，多个shared_ptr可以指向同一个对象，使用引用计数管理资源。
+用途: 适用于需要共享资源所有权的场景。
+std::shared_ptr<int> ptr1(new int(10));
+std::shared_ptr<int> ptr2 = ptr1; // 引用计数增加
+
+
+std::weak_ptr:
+特点: 弱引用，不增加引用计数，用于解决shared_ptr的循环引用问题。
+用途: 适用于需要观察资源但不影响其生命周期的场景。
+std::shared_ptr<int> ptr1(new int(10));
+std::weak_ptr<int> weakPtr = ptr1; // 不增加引用计数
+if (auto sharedPtr = weakPtr.lock()) {
+    // 使用 sharedPtr
+}
+
+----------------------------------------------------------------------------------------------------------------
+
+std::move 是 C++ 标准库中的一个工具，用于将对象的状态或资源所有权从一个对象转移到另一个对象，而无需进行深拷贝。它并不会真正“移动”数据，而是将对象标记为“可移动”，从而使编译器能够调用移动构造函数或移动赋值运算符。
+
+核心作用
+将左值转换为右值引用：std::move 的本质是将一个左值强制转换为右值引用（T&&），从而允许调用移动语义。
+
+优化资源管理：通过移动语义，可以避免不必要的深拷贝，提高性能，尤其是在处理动态内存、文件句柄等资源时。
+
+使用场景
+移动语义：
+当一个对象不再需要当前资源时，可以使用 std::move 将其资源转移到另一个对象。
+
+
+std::string str1 = "Hello";
+std::string str2 = std::move(str1); // str1 的资源被移动到 str2
+// 此时 str1 为空（有效但未定义的状态）
+容器操作：
+在容器中移动元素，避免拷贝开销。
+
+
+std::vector<std::string> vec1 = {"a", "b", "c"};
+std::vector<std::string> vec2 = std::move(vec1); // vec1 的资源被移动到 vec2
+// 此时 vec1 为空
+智能指针管理：
+用于转移 std::unique_ptr 的所有权。
+
+
+std::unique_ptr<int> ptr1 = std::make_unique<int>(10);
+std::unique_ptr<int> ptr2 = std::move(ptr1); // ptr1 的资源被移动到 ptr2
+// 此时 ptr1 为空（nullptr）
+注意事项
+被移动的对象状态：
+被移动的对象在调用 std::move 后，其状态是“有效但未定义的”。通常应该避免继续使用它，除非重新赋值。
+
+
+std::string str1 = "Hello";
+std::string str2 = std::move(str1);
+// str1 的状态是有效但未定义的，可能是空字符串，但不保证
+不能移动常量对象：
+常量对象（const）不能使用 std::move，因为移动语义会修改对象状态。
+
+const std::string str1 = "Hello";
+// std::string str2 = std::move(str1); // 错误：不能移动 const 对象
+性能优化：
+std::move 只有在对象支持移动语义（即定义了移动构造函数或移动赋值运算符）时才有意义。对于基本类型（如 int、double），std::move 不会有任何效果。
+
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+int main() {
+    std::string str1 = "Hello, World!";
+    std::string str2 = std::move(str1); // 移动 str1 的资源到 str2
+
+    std::cout << "str1: " << str1 << std::endl; // str1 为空
+    std::cout << "str2: " << str2 << std::endl; // str2 包含 "Hello, World!"
+
+    std::vector<int> vec1 = {1, 2, 3};
+    std::vector<int> vec2 = std::move(vec1); // 移动 vec1 的资源到 vec2
+
+    std::cout << "vec1 size: " << vec1.size() << std::endl; // vec1 为空
+    std::cout << "vec2 size: " << vec2.size() << std::endl; // vec2 包含 3 个元素
+
+    return 0;
+}
+总结
+std::move 是 C++11 引入的重要工具，用于启用移动语义。
+
+它通过将左值转换为右值引用来触发移动构造函数或移动赋值运算符。
+
+使用 std::move 可以显著提高性能，尤其是在处理大型对象或资源密集型操作时。
+
+注意被移动对象的状态，避免在移动后继续使用它。
+--------------------------------------------------------------------------
+push_back 和 emplace_back 的区别
+特性    	push_back                      	   emplace_back
+参数传递	接受一个对象（左值或右值）      	 接受构造对象所需的参数
+构造方式	需要先构造对象，再拷贝或移动到容器	  直接在容器中构造对象
+性能	    可能涉及拷贝或移动操作	           避免不必要的拷贝或移动，性能更优
+适用场景	适用于已有对象需要添加到容器的情况	  适用于直接在容器中构造对象的情况
